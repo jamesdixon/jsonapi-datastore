@@ -60,14 +60,18 @@ var JsonApiDataStoreModel = (function () {
         function relationshipIdentifier(model) {
           return { type: model._type, id: model.id };
         }
-        if (self[key].constructor === Array) {
-          res.data.relationships[key] = {
-            data: self[key].map(relationshipIdentifier)
-          };
+        if (self[key]) {
+          if (self[key].constructor === Array) {
+            res.data.relationships[key] = {
+              data: self[key].map(relationshipIdentifier)
+            };
+          } else {
+            res.data.relationships[key] = {
+              data: relationshipIdentifier(self[key])
+            };
+          }
         } else {
-          res.data.relationships[key] = {
-            data: relationshipIdentifier(self[key])
-          };
+          res.data.relationships[key] = null;
         }
       });
 
@@ -106,10 +110,14 @@ var JsonApiDataStoreModel = (function () {
         function relationshipIdentifier(model) {
           return +model.id;
         }
-        if (self[key].constructor === Array) {
-          res.relationships[key] = self[key].map(relationshipIdentifier);
+        if (self[key]) {
+          if (self[key].constructor === Array) {
+            res.relationships[key] = self[key].map(relationshipIdentifier);
+          } else {
+            res.attributes[key + 'Id'] = +relationshipIdentifier(self[key]);
+          }
         } else {
-          res.attributes[key + 'Id'] = +relationshipIdentifier(self[key]);
+          res.relationships[key] = null;
         }
       });
 
